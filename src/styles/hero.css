@@ -1,0 +1,85 @@
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 50px 100px;
+    background-color: #ffffff;
+  }
+  
+  .hero-content {
+    max-width: 50%;
+  }
+  
+  .learning-badge {
+    display: inline-block;
+    background-color: rgba(248, 248, 248, 0.97);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6C51B3;
+  }
+  
+  h1 {
+    font-size: 70px;
+    font-weight: 700;
+    margin-top: 20px;
+  }
+  
+  .highlight {
+    color: #6C51B3;
+  }
+  
+  p {
+    font-size: 18px;
+    margin-top: 10px;
+    color: #666;
+  }
+  
+  .subscribe-box {
+    display: flex;
+    align-items: center;
+    border-radius: 50px;
+    overflow: hidden;
+    background: white;
+    border: none;
+    width: fit-content;
+    padding: 8px 12px;
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.06), -4px -4px 10px rgba(255, 255, 255, 1);
+  }
+
+  .subscribe-box input {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    outline: none;
+    background: linear-gradient(145deg, #f3f3f3, #ffffff);
+    font-size: 16px;
+    border-radius: 50px;
+    box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 1);
+    margin-right: 80px;
+   }
+
+   .subscribe-btn {
+    background-color: #6C51B3;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    margin-left: 10px;
+    box-shadow: 3px 3px 5px rgba(0, 0, 0, 0.15), -3px -3px 5px rgba(255, 255, 255, 1);
+    transition: all 0.3s ease-in-out;
+   }
+
+   .subscribe-btn:hover {
+    background-color: #5a4098;
+    transform: scale(1.05);
+   }
+  
+  .hero-image img {
+    width: 700px;
+  }
+  

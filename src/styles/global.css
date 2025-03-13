@@ -1,0 +1,45 @@
+body {
+    font-family: "Arial", sans-serif;
+    background-color: #F8F8F8;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 40px;
+    background: #ffffff;
+  }
+  
+  .logo {
+    width: 50px;
+  }
+  
+  .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+  }
+  
+  .nav-links li a {
+    text-decoration: none;
+    color: #000;
+    font-weight: bold;
+  }
+  
+  .auth-buttons {
+    font-size: 14px;
+  }
+  
+  .register {
+    color: #6C51B3;
+    font-weight: bold;
+  }
+  
+  .login {
+    color: #6C51B3;
+    font-weight: bold;
+  }
+  

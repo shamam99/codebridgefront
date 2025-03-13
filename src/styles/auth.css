@@ -1,0 +1,235 @@
+.auth-container {
+    display: flex;
+    width: 90%;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.auth-left {
+    width: 40%;
+    padding: 20px;
+    text-align: center;
+}
+
+.auth-left img {
+    width: 100%;
+    margin-top: 10px;
+}
+
+.divider {
+    width: 2px;
+    background: #ddd;
+    margin: 0 20px;
+}
+
+.auth-right {
+    width: 60%;
+    padding: 20px;
+}
+
+.google-login {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.google-login img {
+    width: 8%;
+    margin-top: 2px;
+    padding: 0 20px 0 0;
+}
+
+.or-text {
+    font-size: 14px;
+    text-align: center;
+    margin: 15px 0;
+    color: #666;
+}
+
+.auth-right form label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.auth-right input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.signin-btn {
+    width: 107%;
+    padding: 10px;
+    background: #6C51B3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.auth-options {
+    width: 107%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;  
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.auth-options a {
+    margin: 10px 0 0 0; 
+
+    color: #6C51B3;
+    text-decoration: none;
+}
+
+/* Align the checkbox and text in the same line */
+.keep-signed-in {
+    display: flex;
+    align-items: center; 
+    gap: 5px;  
+}
+
+.keep-signed-in input {
+    margin: 10px 0 0 0; 
+    width: 14px;  
+    height: 14px;
+}
+
+
+/* REGISTER STYLES */
+.register-container {
+    display: flex;
+    width: 90%;
+    background: white;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+.register-left {
+    margin-top: 20px;
+    width: 50%;
+    padding: 20px;
+    text-align: center;
+}
+
+.register-left img {
+    width: 110%;
+    margin-top: 30px;
+}
+
+.register-divider {
+    width: 2px;
+    background: #ddd;
+    margin: 0 20px;
+}
+
+.register-right {
+    width: 60%;
+    padding: 20px;
+}
+
+.register-google {
+    width: 100%;
+    padding: 10px;
+    background: white;
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.register-google img {
+    width: 8%;
+    margin-top: 2px;
+    padding: 0 20px 0 0;
+}
+
+.register-or-text {
+    font-size: 14px;
+    text-align: center;
+    margin: 15px 0;
+    color: #666;
+}
+
+.register-right form label {
+    display: block;
+    margin-top: 10px;
+    font-size: 14px;
+    color: #333;
+}
+
+.register-right input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 15px;
+}
+
+.register-btn {
+    width: 107%;
+    padding: 10px;
+    background: #6C51B3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+
+.register-options {
+    width: 107%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;  
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+.register-options a {
+    color: #6C51B3;
+    text-decoration: none;
+}
+
+/* Align the checkbox and text in the same line */
+.register-checkbox {
+    display: flex;
+    align-items: center; 
+    gap: 5px;  
+}
+
+.register-checkbox input {
+    width: 14px;  
+    height: 14px;
+}
+
+/* Sign-in link inside Register Modal */
+.register-signin-link {
+    font-size: 14px;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.switch-to-login {
+    color: #6C51B3;
+    font-weight: bold;
+    text-decoration: none;
+}
+

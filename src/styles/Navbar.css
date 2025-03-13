@@ -1,0 +1,88 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 50px;
+  background-color: #ffffff;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 40px;
+  margin-right: 10px;
+}
+
+.site-name {
+  font-size: 20px;
+  font-weight: 600;
+  color: black;
+}
+
+.nav-links {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+}
+
+.nav-links li {
+  font-size: 16px;
+  font-weight: 500;
+  position: relative;
+  margin: 0 50px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: black;
+  transition: color 0.3s;
+}
+
+.nav-links li.active a {
+  font-weight: 600;
+  color: #6C51B3;
+}
+
+.nav-links li.active::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  width: 100%;
+  height: 3px;
+  background-color: #6C51B3;
+  transform: translateX(-50%);
+}
+
+.auth-links {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+}
+
+.register-link {
+  color: black;
+  text-decoration: none;
+  font-weight: 500;
+  margin: 0 10px;
+
+}
+
+.login-link {
+  color: #6C51B3;
+  text-decoration: none;
+  font-weight: 500;
+  margin: 0 10px;
+
+}
+
+/* Profile Picture */
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+}
