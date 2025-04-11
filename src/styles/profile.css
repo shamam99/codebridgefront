@@ -1,0 +1,158 @@
+
+.profile-page {
+    background: #ffffff;
+    min-height: 90vh;
+    padding: 40px 80px 20px;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  .tabs {
+    display: flex;
+    gap: 35px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+    padding-left: 50px;
+    margin-bottom: 10px;
+  }
+  
+  .tabs button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    padding-bottom: 5px;
+    color: #333;
+  }
+  
+  .tabs .active-tab {
+    border-bottom: 3px solid #6C51B3;
+    color: #6C51B3;
+  }
+  
+  .profile-container {
+    display: flex;
+    gap: 50px;
+  }
+  
+  /* Left Section */
+  .profile-left {
+    width: 25%;
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+  }
+  
+  .profile-img {
+    width: 200px;
+    height: 200px;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 5px;
+  }
+  
+  .profile-left h2 {
+    margin-bottom: 30px;
+    font-size: 20px;
+  }
+  
+  .profile-left .bio {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+  }
+  
+  .edit-btn, .save-btn {
+    background: #6C51B3;
+    color: white;
+    border: none;
+    padding: 10px 46px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+
+  .follow-btn {
+    background: #6c51b3;
+    color: white;
+    border: none;
+    padding: 10px 46px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    margin-bottom: 15px;
+  }
+  
+  
+  input, textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .info {
+    font-size: 3px;
+    text-align: left;
+    color: #444;
+  }
+  
+  /* Right Section */
+  .profile-right {
+    width: 70%;
+  }
+  
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 18px;
+  }
+  
+  .project-card {
+    background: white;
+    border: 1px solid #ddd;
+    padding: 0px 20px 20px 20px;
+    border-radius: 10px;
+  }
+  
+  .project-name {
+    font-weight: bold;
+    color: #6C51B3;
+  }
+  
+  .tag {
+    background: #eee;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    margin-left: 10px;
+    color: #555;
+  }
+  
+  .projects-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0;
+  }
+  
+  .upload-project-btn {
+    background-color: #6C51B3;
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .upload-project-btn:hover {
+    background-color: #5a41a1;
+  }
+  

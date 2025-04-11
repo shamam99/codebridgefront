@@ -1,5 +1,5 @@
 import React from "react";
-import "../styles/CodeConverter.css"; // Add a separate CSS file for styles
+import "../styles/CodeConverter.css"; 
 import jsIcon from "../assets/js.png";
 import pythonIcon from "../assets/python.png";
 

@@ -1,9 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import "../styles/auth.css";
 import registerIllustration from "../assets/codeRegister.png";
 import google from "../assets/google.png";
+import { registerUser } from "../services/authService";
 
 const Register = ({ onSwitchToLogin }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const data = await registerUser(formData);
+      localStorage.setItem("token", data.token);
+      window.location.reload();
+    } catch (err) {
+      alert(err.response?.data?.error || "Registration failed");
+    }
+  };
+
   return (
     <div className="register-container">
       <div className="register-left">
@@ -17,13 +39,31 @@ const Register = ({ onSwitchToLogin }) => {
           Sign up with Google
         </button>
         <p className="register-or-text">— Or signup with your email —</p>
-        <form>
+        <form onSubmit={handleSubmit}>
           <label>Full Name</label>
-          <input type="text" placeholder="Enter your full name" />
+          <input
+            type="text"
+            name="name"
+            placeholder="Enter your full name"
+            value={formData.name}
+            onChange={handleChange}
+          />
           <label>Email</label>
-          <input type="email" placeholder="Enter your email" />
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter your email"
+            value={formData.email}
+            onChange={handleChange}
+          />
           <label>Password</label>
-          <input type="password" placeholder="Enter your password" />
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter your password"
+            value={formData.password}
+            onChange={handleChange}
+          />
           <div className="register-options">
             <div className="register-checkbox">
               <input type="checkbox" id="termsConditions" />
@@ -32,11 +72,11 @@ const Register = ({ onSwitchToLogin }) => {
               </label>
             </div>
           </div>
-          <button className="register-btn">Sign Up</button>
+          <button type="submit" className="register-btn">Sign Up</button>
           <p className="register-signin-link">
-            Already have an account? 
-            <button 
-              className="switch-to-login" 
+            Already have an account?{" "}
+            <button
+              className="switch-to-login"
               onClick={onSwitchToLogin}
               style={{
                 background: "none",
