@@ -1,6 +1,4 @@
----
 
-```markdown
 # Code Bridge — Frontend
 
 > Empowering developers and learners through multilingual code translation, real-time execution, and a collaborative learning community.
@@ -134,6 +132,4 @@ Feel free to use, modify, and distribute with credit.
 ---
 
 > Madeby Shamam 
-```
 
----
