@@ -19,15 +19,19 @@ const Navbar = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      try {
-        setIsLoggedIn(true);
-        fetchFullUserProfile();
-      } catch {
-        setIsLoggedIn(false);
-        setUser(null);
+      setIsLoggedIn(true);
+      fetchFullUserProfile();
+    } else {
+      setIsLoggedIn(false);
+      setUser(null);
+      // 👇 Show login modal if redirected by PrivateRoute
+      if (localStorage.getItem("redirectAfterLogin")) {
+        setShowLogin(true);
+        localStorage.removeItem("redirectAfterLogin");
       }
     }
   }, []);
+  
 
   const fetchFullUserProfile = async () => {
     try {
@@ -47,7 +51,7 @@ const Navbar = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUser(null);
-    window.location.reload();
+    window.location.href = "/"; 
   };
 
   return (

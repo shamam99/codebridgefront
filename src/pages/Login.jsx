@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../styles/auth.css";
 import loginGirl from "../assets/loginGirl.png";
-import google from "../assets/google.png";
 import { loginUser } from "../services/authService";
 
 const Login = () => {
@@ -30,11 +29,6 @@ const Login = () => {
       </div>
       <div className="divider"></div>
       <div className="auth-right">
-        <button className="google-login">
-          <img src={google} alt="Google" />
-          Sign in with Google
-        </button>
-        <p className="or-text">— Or sign in with your email —</p>
         <form onSubmit={handleSubmit}>
           <label>Email</label>
           <input

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "../styles/auth.css";
 import registerIllustration from "../assets/codeRegister.png";
-import google from "../assets/google.png";
 import { registerUser } from "../services/authService";
 
 const Register = ({ onSwitchToLogin }) => {
@@ -34,11 +33,6 @@ const Register = ({ onSwitchToLogin }) => {
       </div>
       <div className="register-divider"></div>
       <div className="register-right">
-        <button className="register-google">
-          <img src={google} alt="Google Logo" />
-          Sign up with Google
-        </button>
-        <p className="register-or-text">— Or signup with your email —</p>
         <form onSubmit={handleSubmit}>
           <label>Full Name</label>
           <input

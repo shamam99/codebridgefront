@@ -217,11 +217,11 @@ const Community = () => {
                     <p className="repo-desc">{post.content}</p>
                     <div className="repo-footer">
                       <span>💬 Comments</span>
-                      {user?.id === post.userId?.id && (
-                        <div>
-                          <button className="edit-btn" onClick={() => setEditingPostId(post.id)}>Edit</button>
-                          <button className="delete-btn" onClick={() => handleDeletePost(post.id)}>Delete</button>
-                        </div>
+                      {user?.id === post.userId?._id && (
+                        <div className="post-controls">
+                        <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
+                        <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
+                      </div>
                       )}
                     </div>
                   </>
@@ -253,9 +253,9 @@ const Community = () => {
                         </div>
                         <div>{c.content}</div>
                       </div>
-                      {c.userId?.id === user?.id && (
+                      {c.userId?._id === user?.id && (
                         <div className="comment-actions">
-                          <button onClick={() => handleDeleteComment(c._id, post.id)}>🗑</button>
+                          <button className="delete-btn" onClick={() => handleDeleteComment(c.id, post.id)}>Delete</button>
                         </div>
                       )}
                     </div>

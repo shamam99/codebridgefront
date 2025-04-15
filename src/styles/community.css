@@ -108,6 +108,7 @@
   border-radius: 12px;
   font-size: 13px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.07);
+  position: relative; /* ✅ required for absolute child */
 }
 
 .repo-header {
@@ -200,10 +201,12 @@
 
 .comment-actions button {
   font-size: 11px;
-  background: transparent;
+  background-color: #ffa39e;
   border: none;
-  color: #cc0000;
+  padding: 4px 8px;
+  border-radius: 6px;
   cursor: pointer;
+  color: white;
 }
 
 /* Right Sidebar */
@@ -335,4 +338,37 @@
   cursor: pointer;
   background: #4b0082;
   color: white;
+}
+
+/* Post action buttons (Edit/Delete) */
+.post-controls {
+  position: absolute;
+  top: 10px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.icon-btn {
+  background: #f2f0fa;
+  border: none;
+  font-size: 14px;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #4b0082;
+  transition: background 0.2s ease;
+}
+
+.icon-btn:hover {
+  background: #e6e0ff;
+}
+
+.icon-btn.delete {
+  color: #b30000;
+  background: #fde8e8;
+}
+
+.icon-btn.delete:hover {
+  background: #fccccc;
 }
