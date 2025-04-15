@@ -233,3 +233,14 @@
     text-decoration: none;
 }
 
+.error {
+    color: red;
+    font-size: 13px;
+    margin-top: -8px;
+    margin-bottom: 10px;
+  }
+  
+.error-input {
+    border: 1px solid red !important;
+}
+  

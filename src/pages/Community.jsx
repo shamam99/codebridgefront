@@ -27,6 +27,12 @@ const Community = () => {
   const [commentText, setCommentText] = useState({});
   const [comments, setComments] = useState({});
   const [editingPostId, setEditingPostId] = useState(null);
+  const [setShowErrors] = useState(false);
+  const [commentErrors, setCommentErrors] = useState({});
+  const [postErrors, setPostErrors] = useState({
+    title: "",
+    content: "",
+  });
   const token = localStorage.getItem("token");
   const user = token ? jwtDecode(token) : null;
   const navigate = useNavigate();
@@ -79,10 +85,30 @@ const Community = () => {
   }, [search]);
 
   const handleCreatePost = async () => {
+    const errors = {
+      title:
+        !newPost.title.trim()
+          ? "Title is required."
+          : newPost.title.length < 3
+          ? "Title must be at least 3 characters."
+          : "",
+      content:
+        !newPost.content.trim()
+          ? "Content is required."
+          : newPost.content.length < 10
+          ? "Content must be at least 10 characters."
+          : "",
+    };
+  
+    setPostErrors(errors);
+  
+    if (errors.title || errors.content) return;
+  
     try {
       await createPost(newPost);
       setShowPostModal(false);
       setNewPost({ title: "", content: "" });
+      setPostErrors({ title: "", content: "" });
       setTimeout(() => {
         loadCommunity();
       }, 300);
@@ -90,6 +116,8 @@ const Community = () => {
       alert("Failed to create post");
     }
   };
+  
+  
 
   const handleDeletePost = async (id) => {
     if (confirm("Delete this post?")) {
@@ -105,23 +133,24 @@ const Community = () => {
   };
 
   const handleAddComment = async (postId) => {
-    if (!postId || !commentText[postId]) {
-      console.error("Invalid postId or empty comment text");
+    const content = commentText[postId]?.trim();
+  
+    if (!content) {
+      setCommentErrors((prev) => ({ ...prev, [postId]: "Comment cannot be empty." }));
       return;
     }
-  
-    const content = commentText[postId]?.trim();
-    if (!content) return;
   
     try {
       await createComment(postId, content);
       setCommentText((prev) => ({ ...prev, [postId]: "" }));
+      setCommentErrors((prev) => ({ ...prev, [postId]: "" }));
       loadComments(postId);
     } catch (err) {
       console.error("Failed to create comment", err);
-      alert("Failed to create comment");
+      setCommentErrors((prev) => ({ ...prev, [postId]: "Failed to create comment." }));
     }
   };
+  
 
   const handleDeleteComment = async (commentId, postId) => {
     await deleteComment(commentId);
@@ -230,14 +259,20 @@ const Community = () => {
                 {/* Comments */}
                 <div className="comments">
                   <input
-                    className="comment-input"
+                    className={`comment-input ${commentErrors[post.id] ? "error-input" : ""}`}
                     placeholder="Write a comment..."
                     value={commentText[post.id] || ""}
-                    onChange={(e) => setCommentText({ ...commentText, [post.id]: e.target.value })}
+                    onChange={(e) => {
+                      setCommentText({ ...commentText, [post.id]: e.target.value });
+                      setCommentErrors({ ...commentErrors, [post.id]: "" }); // clear error while typing
+                    }}
                     onFocus={() => post.id && loadComments(post.id)}
                   />
                   <button className="star-btn" onClick={() => handleAddComment(post.id)}>Share</button>
 
+                  {commentErrors[post.id] && (
+                    <small className="error">{commentErrors[post.id]}</small>
+                  )}
                   {comments[post.id]?.map((c, i) => (
                     <div key={c._id || i} className="comment">
                       <img
@@ -288,19 +323,28 @@ const Community = () => {
         <div className="modal-backdrop">
           <div className="modal-box">
             <h3>Share a new post</h3>
+
             <input
               placeholder="Title"
               value={newPost.title}
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
+              className={postErrors.title ? "error-input" : ""}
             />
+            {postErrors.title && <p className="error">{postErrors.title}</p>}
             <textarea
               placeholder="What's on your mind?"
               value={newPost.content}
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+              className={postErrors.content ? "error-input" : ""}
             />
+            {postErrors.content && <p className="error">{postErrors.content}</p>}
             <div className="modal-actions">
               <button onClick={handleCreatePost}>Post</button>
-              <button onClick={() => setShowPostModal(false)}>Cancel</button>
+              <button onClick={() => {
+                setShowPostModal(false);
+                setShowErrors(false);
+                setNewPost({ title: "", content: "" });
+              }}>Cancel</button>
             </div>
           </div>
         </div>

@@ -18,6 +18,10 @@ const Profile = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [userProjects, setUserProjects] = useState([]);
+  const [uploadErrors, setUploadErrors] = useState({
+    title: "",
+    file: "",
+  });
 
   // Upload project modal
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -38,29 +42,36 @@ const Profile = () => {
   };
 
   const uploadProject = async () => {
-    if (!uploadData.file || !uploadData.title) {
-      alert("Title and file are required.");
-      return;
-    }
-
+    const errors = {
+      title: uploadData.title.trim() ? "" : "Title is required.",
+      file: uploadData.file ? "" : "ZIP file is required.",
+    };
+  
+    setUploadErrors(errors);
+  
+    // If there's any error, stop
+    if (errors.title || errors.file) return;
+  
     try {
       const formData = new FormData();
       formData.append("title", uploadData.title);
       formData.append("description", uploadData.description);
       formData.append("visibility", uploadData.visibility);
       formData.append("projectFile", uploadData.file);
-
+  
       await API.post("/projects", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
+  
       setShowUploadModal(false);
+      setUploadData({ title: "", description: "", visibility: "private", file: null });
+      setUploadErrors({ title: "", file: "" });
       fetchUserProjects();
     } catch (err) {
       alert("Upload failed.");
       console.error(err);
     }
-  };
+  };  
 
   const fetchUserProjects = async () => {
     try {
@@ -307,18 +318,30 @@ const Profile = () => {
           placeholder="Title"
           value={uploadData.title}
           onChange={handleUploadChange}
+          className={uploadErrors.title ? "error-input" : ""}
         />
+        {uploadErrors.title && <p className="error">{uploadErrors.title}</p>}
         <textarea
           name="description"
           placeholder="Description"
           value={uploadData.description}
           onChange={handleUploadChange}
         />
-        <select name="visibility" value={uploadData.visibility} onChange={handleUploadChange}>
+        <select
+          name="visibility"
+          value={uploadData.visibility}
+          onChange={handleUploadChange}
+        >
           <option value="private">Private</option>
           <option value="public">Public</option>
         </select>
-        <input type="file" accept=".zip" onChange={handleFileChange} />
+        <input
+          type="file"
+          accept=".zip"
+          onChange={handleFileChange}
+          className={uploadErrors.file ? "error-input" : ""}
+        />
+        {uploadErrors.file && <p className="error">{uploadErrors.file}</p>}
         <div className="modal-actions">
           <button onClick={uploadProject}>Upload</button>
           <button onClick={() => setShowUploadModal(false)}>Cancel</button>

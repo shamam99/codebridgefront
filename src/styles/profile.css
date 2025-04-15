@@ -156,3 +156,13 @@
     background-color: #5a41a1;
   }
   
+  .error {
+    color: red;
+    font-size: 13px;
+    margin: 4px 0 8px 4px;
+  }
+  
+  .error-input {
+    border: 1px solid red !important;
+  }
+  
