@@ -5,13 +5,15 @@ import {
   createCodePage,
   deleteCodePage,
 } from "../services/codePageService";
-import { translateCode } from "../services/translateService";
+import { translateCode, runCode } from "../services/translateService";
 
 const CodeEditor = () => {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
   const [translatedCode, setTranslatedCode] = useState("");
   const [toLanguage, setToLanguage] = useState("javascript");
+  const [runOutput, setRunOutput] = useState("");
+
 
   useEffect(() => {
     loadCodePages();
@@ -98,23 +100,41 @@ const CodeEditor = () => {
     );
   };
 
-  const runCodeHandler = async () => {
+  const translateCodeHandler = async () => {
     const tab = tabs.find((t) => t.id === activeTab);
     if (!tab) return;
-
+  
     try {
       const res = await translateCode({
         code: tab.content,
         fromLang: tab.language,
         toLang: toLanguage,
       });
-
+  
       setTranslatedCode(res.translatedCode);
     } catch (err) {
       setTranslatedCode("Translation error occurred.");
       console.error("Error translating:", err);
     }
   };
+
+  const runCodeHandler = async () => {
+    const tab = tabs.find((t) => t.id === activeTab);
+    if (!tab) return;
+  
+    try {
+      const res = await runCode({
+        code: tab.content,
+        language: tab.language,
+      });
+  
+      setRunOutput(res.output);
+    } catch (err) {
+      setRunOutput("Run error occurred:\n" + err.message);
+      console.error("Run error:", err);
+    }
+  };
+  
 
   const saveTab = async () => {
     const tab = tabs.find((t) => t.id === activeTab);
@@ -173,25 +193,38 @@ const CodeEditor = () => {
       <div className="editor-wrapper">
         {/* Left Editor */}
         <div className="editor">
-          <div className="editor-header">
-            <select
-              value={active?.language}
-              onChange={(e) => updateLanguage(active.id, e.target.value)}
-            >
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-            </select>
+        <div className="editor-header">
+          <select
+            value={active?.language}
+            onChange={(e) => updateLanguage(active.id, e.target.value)}
+          >
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+
+          <div>
+            {/* ⬅️ NEW BUTTON */}
             <button className="run-btn" onClick={runCodeHandler}>
-              Run
+              ▶️ Run
+            </button>
+            {/* 🧠 EXISTING TRANSLATE BUTTON */}
+            <button className="run-btn" onClick={translateCodeHandler}>
+              🔄 Translate
             </button>
           </div>
+        </div>
           <textarea
             className="code-area"
             placeholder="Write your code here..."
             value={active?.content || ""}
             onChange={(e) => updateCode(active.id, e.target.value)}
           />
+
+        <div className="console">
+          <h3>Console Output:</h3>
+          <textarea className="console-area" readOnly value={runOutput} />
         </div>
+      </div>
 
         {/* Right Output */}
         <div className="editor">
