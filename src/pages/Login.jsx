@@ -4,7 +4,7 @@ import "../styles/auth.css";
 import loginGirl from "../assets/loginGirl.png";
 import { loginUser } from "../services/authService";
 
-const Login = () => {
+const Login = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
@@ -38,9 +38,11 @@ const Login = () => {
       const data = await loginUser(formData);
       if (rememberMe) {
         localStorage.setItem("token", data.token);
+        sessionStorage.removeItem("token"); 
       } else {
         sessionStorage.setItem("token", data.token);
-      }
+        localStorage.removeItem("token"); 
+      }      
       window.location.reload();
     } catch (err) {
       alert(err.response?.data?.error || "Login failed.");
@@ -90,6 +92,24 @@ const Login = () => {
           </div>
 
           <button type="submit" className="signin-btn">Sign In</button>
+
+          <p className="register-signin-link">
+            Don't have an account?{" "}
+            <button
+              className="switch-to-login"
+              onClick={onSwitchToRegister}
+              style={{
+                background: "none",
+                border: "none",
+                fontSize: "16px",
+                fontWeight: "700",
+                cursor: "pointer",
+                color: "#6C51B3"
+              }}
+            >
+              Sign up
+            </button>
+          </p>
         </form>
       </div>
     </div>

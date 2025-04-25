@@ -7,6 +7,7 @@ import Modal from "./Modal";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import API from "../services/axiosInstance";
+import { getStoredToken, isLoggedIn as checkAuth } from "../services/authService";
 
 const Navbar = () => {
   const location = useLocation();
@@ -17,14 +18,14 @@ const Navbar = () => {
 
   // On mount: check token and fetch full profile
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getStoredToken(); 
+  
     if (token) {
       setIsLoggedIn(true);
       fetchFullUserProfile();
     } else {
       setIsLoggedIn(false);
       setUser(null);
-      // 👇 Show login modal if redirected by PrivateRoute
       if (localStorage.getItem("redirectAfterLogin")) {
         setShowLogin(true);
         localStorage.removeItem("redirectAfterLogin");
@@ -36,7 +37,7 @@ const Navbar = () => {
   const fetchFullUserProfile = async () => {
     try {
       const res = await API.get("/users/profile");
-      setUser(res.data); // contains name, avatar, etc.
+      setUser(res.data); // contains name, avatar.
     } catch (err) {
       console.error("Failed to fetch profile for navbar", err);
     }
@@ -47,11 +48,17 @@ const Navbar = () => {
     setTimeout(() => setShowLogin(true), 300);
   };
 
+  const switchToRegister = () => {
+    setShowLogin(false);
+    setTimeout(() => setShowRegister(true), 300); 
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
+    sessionStorage.removeItem("token"); 
     setIsLoggedIn(false);
     setUser(null);
-    window.location.href = "/"; 
+    window.location.href = "/";
   };
 
   return (
@@ -139,7 +146,7 @@ const Navbar = () => {
 
       {/* Login Modal */}
       <Modal isOpen={showLogin} onClose={() => setShowLogin(false)}>
-        <Login />
+        <Login onSwitchToRegister={switchToRegister} />
       </Modal>
 
       {/* Register Modal */}

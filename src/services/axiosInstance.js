@@ -1,4 +1,5 @@
 import axios from "axios";
+import {getStoredToken} from "./authService"
 
 const API = axios.create({
   baseURL: "http://localhost:3001/api",
@@ -13,7 +14,7 @@ API.interceptors.request.use((config) => {
 
   const token = isAdminRoute
     ? localStorage.getItem("adminToken")
-    : localStorage.getItem("token");
+    : getStoredToken();
 
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

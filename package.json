@@ -10,8 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@codemirror/lang-javascript": "^6.2.3",
+    "@codemirror/lang-python": "^6.2.0",
+    "@codemirror/language": "^6.11.0",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.36.6",
     "@mui/icons-material": "^6.4.6",
     "@mui/material": "^6.4.6",
+    "@uiw/react-codemirror": "^4.23.10",
     "axios": "^1.8.4",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
