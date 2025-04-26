@@ -6,6 +6,7 @@ import API from "../services/axiosInstance";
 import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Modal from "react-modal";
+import { deleteAvatar } from "../services/userService";
 
 const Profile = () => {
   const { id } = useParams();
@@ -169,20 +170,44 @@ const Profile = () => {
 
         <div className="profile-container">
           <div className="profile-left">
-            <img
-              src={profileData.avatar || profileImage}
-              alt="User"
-              className="profile-img"
-            />
+          <img
+            src={profileData.avatar || profileImage}
+            alt="User"
+            className="profile-img"
+          />
 
-            {isEditing && (
+          {isEditing && (
+            <>
               <input
                 type="file"
                 accept="image/*"
                 onChange={(e) => setSelectedImage(e.target.files[0])}
+                style={{ marginTop: "10px", marginBottom: "5px" }}
               />
-            )}
-
+              
+              {profileData.avatar && (
+                <button
+                  className="delete-avatar-btn"
+                  onClick={async () => {
+                    try {
+                      await deleteAvatar();
+                      setProfileData({ ...profileData, avatar: null });
+                    } catch (err) {
+                      console.error("Failed to delete avatar", err);
+                    }
+                  }}
+                  style={{
+                    background: "none",
+                    border: "none",
+                    color: "red",
+                    cursor: "pointer"
+                  }}
+                >
+                  🗑️ Remove Avatar
+                </button>
+              )}
+            </>
+          )}
             <h2>
               {isEditing ? (
                 <input

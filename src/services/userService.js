@@ -31,3 +31,7 @@ export const unfollowUser = async (userId) => {
   return response.data;
 };
 
+export const deleteAvatar = async () => {
+  const response = await API.delete("/users/profile/avatar");
+  return response.data;
+};

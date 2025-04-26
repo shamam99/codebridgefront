@@ -88,12 +88,15 @@ const Navbar = () => {
         <div className="auth-links">
           {isLoggedIn ? (
             <>
-              <img
-                src={user?.avatar || profileImage}
-                alt="User"
-                className="profile-pic"
-                title={user?.name || "Logged In"}
-              />
+              <Link to="/profile">
+                <img
+                  src={user?.avatar || profileImage}
+                  alt="User"
+                  className="profile-pic"
+                  title={user?.name || "Logged In"}
+                  style={{ cursor: "pointer" }}
+                />
+              </Link>
               <button
                 onClick={handleLogout}
                 style={{
