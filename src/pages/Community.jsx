@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "../styles/community.css";
 import profileImage from "../assets/profileImage.jpg";
+import API from "../services/axiosInstance";
 import Navbar from "../components/Navbar";
 import {
   createPost,
@@ -36,6 +37,9 @@ const Community = () => {
   const token = localStorage.getItem("token");
   const user = token ? jwtDecode(token) : null;
   const navigate = useNavigate();
+  const [savedPosts, setSavedPosts] = useState([]);
+  const [visibleComments, setVisibleComments] = useState({});
+
 
   const loadCommunity = async () => {
     try {
@@ -83,6 +87,15 @@ const Community = () => {
     loadCommunity();
     loadNews();
   }, [search]);
+
+  useEffect(() => {
+    const fetchSaved = async () => {
+      const res = await API.get("/users/profile");
+      setSavedPosts(res.data.user.savedPosts || []);
+    };
+    fetchSaved();
+  }, []);
+  
 
   const handleCreatePost = async () => {
     const errors = {
@@ -132,6 +145,17 @@ const Community = () => {
     loadCommunity();
   };
 
+  const handleSavePost = async (postId) => {
+    try {
+      const res = await API.post(`/community/${postId}/save`);
+      setSavedPosts(prev =>
+        prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
+      );
+    } catch (err) {
+      console.error("Failed to toggle save", err);
+    }
+  };
+
   const handleAddComment = async (postId) => {
     const content = commentText[postId]?.trim();
   
@@ -155,6 +179,16 @@ const Community = () => {
   const handleDeleteComment = async (commentId, postId) => {
     await deleteComment(commentId);
     loadComments(postId);
+  };
+
+  const toggleComments = async (postId) => {
+    setVisibleComments(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
+    if (!comments[postId]) {
+      await loadComments(postId);
+    }
   };
 
   return (
@@ -201,7 +235,6 @@ const Community = () => {
           <div className="feed-header">
             <h3>Feeds</h3>
             <div className="feed-actions">
-              <a href="#">Send feedback</a>
               <button className="filter-btn" onClick={() => setShowPostModal(true)}>
                 + Post
               </button>
@@ -245,57 +278,68 @@ const Community = () => {
                   <>
                     <p className="repo-desc">{post.content}</p>
                     <div className="repo-footer">
-                      <span>💬 Comments</span>
-                      {user?.id === post.userId?._id && (
-                        <div className="post-controls">
+                    <span style={{ cursor: "pointer" }} onClick={() => toggleComments(post.id)}>
+                      💬 {comments[post.id]?.length || 0} Comments
+                    </span>                      
+                      <div className="post-controls">
                         <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
                         <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
-                      </div>
+                      {user?.id === post.userId?._id && (
+                        <button
+                          className="icon-btn"
+                          onClick={() => handleSavePost(post.id)}
+                          title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
+                        >
+                          {savedPosts.includes(post.id) ? "💾" : "📥"}
+                        </button>
                       )}
+                      </div>
                     </div>
                   </>
                 )}
 
                 {/* Comments */}
-                <div className="comments">
-                  <input
-                    className={`comment-input ${commentErrors[post.id] ? "error-input" : ""}`}
-                    placeholder="Write a comment..."
-                    value={commentText[post.id] || ""}
-                    onChange={(e) => {
-                      setCommentText({ ...commentText, [post.id]: e.target.value });
-                      setCommentErrors({ ...commentErrors, [post.id]: "" }); // clear error while typing
-                    }}
-                    onFocus={() => post.id && loadComments(post.id)}
-                  />
-                  <button className="star-btn" onClick={() => handleAddComment(post.id)}>Share</button>
+                {visibleComments[post.id] && (
+                  <div className="comments">
+                    <input
+                      className={`comment-input ${commentErrors[post.id] ? "error-input" : ""}`}
+                      placeholder="Write a comment..."
+                      value={commentText[post.id] || ""}
+                      onChange={(e) => {
+                        setCommentText({ ...commentText, [post.id]: e.target.value });
+                        setCommentErrors({ ...commentErrors, [post.id]: "" }); // clear error while typing
+                      }}
+                      onFocus={() => post.id && loadComments(post.id)}
+                    />
+                    <button className="star-btn" onClick={() => handleAddComment(post.id)}>Share</button>
 
-                  {commentErrors[post.id] && (
-                    <small className="error">{commentErrors[post.id]}</small>
-                  )}
-                  {comments[post.id]?.map((c, i) => (
-                    <div key={c._id || i} className="comment">
-                      <img
-                        src={c.userId?.avatar || "/default-avatar.png"}
-                        alt="avatar"
-                        className="avatar"
-                        style={{ width: "32px", height: "32px" }}
-                      />
-                      <div>
+                    {commentErrors[post.id] && (
+                      <small className="error">{commentErrors[post.id]}</small>
+                    )}
+                    {comments[post.id]?.map((c, i) => (
+                      <div key={c._id || i} className="comment">
+                        <img
+                          src={c.userId?.avatar || "/default-avatar.png"}
+                          alt="avatar"
+                          className="avatar"
+                          style={{ width: "32px", height: "32px" }}
+                        />
                         <div>
-                          <span className="comment-user">{c.userId?.name}</span>
-                          <span className="comment-time"> – {new Date(c.timestamp).toLocaleString()}</span>
+                          <div>
+                            <span className="comment-user">{c.userId?.name}</span>
+                            <span className="comment-time"> – {new Date(c.timestamp).toLocaleString()}</span>
+                          </div>
+                          <div>{c.content}</div>
                         </div>
-                        <div>{c.content}</div>
+                        {c.userId?._id === user?.id && (
+                          <div className="comment-actions">
+                            <button className="delete-btn" onClick={() => handleDeleteComment(c.id, post.id)}>Delete</button>
+                          </div>
+                        )}
                       </div>
-                      {c.userId?._id === user?.id && (
-                        <div className="comment-actions">
-                          <button className="delete-btn" onClick={() => handleDeleteComment(c.id, post.id)}>Delete</button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

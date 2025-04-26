@@ -172,3 +172,90 @@
     border: 1px solid red !important;
   }
   
+  .userlist-modal {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 400px;
+    height: 500px;
+    margin: auto;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .userlist-scroll {
+    overflow-y: auto;
+    max-height: 400px;
+    padding: 10px 5px;
+  }
+  
+  .userlist-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .userlist-item img {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
+  }
+  
+  .userlist-item span {
+    flex-grow: 1;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  
+  .userlist-item button {
+    background: #6C51B3;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: white;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .userlist-item button:hover {
+    background: #5a41a1;
+  }
+
+  .pin-btn {
+    background: #e0e0e0;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: #333;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .pin-btn:hover {
+    background: #d5d5d5;
+  }
+
+  .project-action-btn {
+    width: 25px;
+    height: 25px;
+    border: none;
+    background: #ffffff;
+    border-radius: 9px;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  
+  .project-action-btn:hover {
+    background: #e0e0e0;
+  }
+  
+  

@@ -23,6 +23,21 @@ const Profile = () => {
     title: "",
     file: "",
   });
+  const [showUserListModal, setShowUserListModal] = useState(false);
+  const [listType, setListType] = useState("followers"); 
+  const [userList, setUserList] = useState([]);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [editErrors, setEditErrors] = useState({ title: "", description: "" });
+  const [starredProjects, setStarredProjects] = useState([]);
+  const [savedPosts, setSavedPosts] = useState([]);
+
+
+
+  const handleTabClick = (tab) => {
+    setActiveTab(tab);
+  };
 
   // Upload project modal
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -73,6 +88,11 @@ const Profile = () => {
       console.error(err);
     }
   };  
+  const handleEditProject = (project) => {
+    setEditingProject({ ...project });
+    setEditErrors({ title: "", description: "" });
+    setShowEditModal(true);
+  };
 
   const fetchUserProjects = async () => {
     try {
@@ -82,6 +102,84 @@ const Profile = () => {
       console.error("Failed to load projects", err);
     }
   };
+
+  const fetchSavedPosts = async () => {
+    try {
+      const res = await API.get("/users/profile/saved");
+      setSavedPosts(res.data);
+    } catch (err) {
+      console.error("Failed to load saved posts", err);
+    }
+  };
+  
+  useEffect(() => {
+    fetchSavedPosts();
+  }, []);
+
+  const saveEditedProject = async () => {
+    const errors = {
+      title: editingProject.title.trim() ? "" : "Title is required.",
+      description: editingProject.description.trim() ? "" : "Description is required.",
+    };
+    setEditErrors(errors);
+    if (errors.title || errors.description) return;
+  
+    try {
+      await API.put(`/projects/${editingProject._id}`, {
+        title: editingProject.title,
+        description: editingProject.description,
+      });
+      setShowEditModal(false);
+      setEditingProject(null);
+      fetchUserProjects(); 
+    } catch (err) {
+      console.error("Update project failed", err);
+    }
+  };
+  
+  const handleDeleteProject = (projectId) => {
+    if (window.confirm("Are you sure you want to delete this project?")) {
+      API.delete(`/projects/${projectId}`)
+        .then(() => fetchUserProjects())
+        .catch((err) => console.error("Delete failed", err));
+    }
+  };
+
+  const togglePinProject = async (projectId) => {
+    try {
+      await API.post(`/projects/${projectId}/pin`);
+      fetchUserProjects(); 
+    } catch (err) {
+      console.error("Failed to pin/unpin project", err);
+    }
+  };
+
+  const fetchStarredProjects = async () => {
+    try {
+      const res = await API.get(`/projects/users/${id || currentUser.id}/starred`);
+      setStarredProjects(res.data);
+    } catch (err) {
+      console.error("Failed to load starred projects", err);
+    }
+  };
+  
+
+  const toggleStarProject = async (projectId) => {
+    try {
+      const isStarred = starredProjects.some(p => p._id === projectId);
+      await API.post(`/projects/${projectId}/star`);
+  
+      setStarredProjects(prev =>
+        isStarred
+          ? prev.filter(p => p._id !== projectId)
+          : [...prev, userProjects.find(p => p._id === projectId)]
+      );
+    } catch (err) {
+      console.error("Failed to star/unstar project", err);
+    }
+  };
+
+  
 
   const fetchProfile = async () => {
     try {
@@ -140,7 +238,9 @@ const Profile = () => {
   useEffect(() => {
     fetchProfile();
     fetchUserProjects();
+    fetchStarredProjects();
   }, [id]);
+  
 
   useEffect(() => {
     if (profileData && currentUser) {
@@ -157,15 +257,31 @@ const Profile = () => {
     setProfileData({ ...profileData, [e.target.name]: e.target.value });
   };
 
+  const openUserListModal = async (type) => {
+    setListType(type);
+    try {
+      const res = await API.get(`/users/${id || currentUser.id}/${type}`);
+      setUserList(res.data);
+      setShowUserListModal(true);
+    } catch (err) {
+      console.error(`Failed to load ${type}`, err);
+    }
+  };
+
   return (
     <>
       <Navbar avatar={profileData.avatar} />
       <div className="profile-page">
         <div className="tabs">
-          <button className="active-tab">Overview</button>
-          <button>Projects</button>
-          <button>Stars</button>
-          <button>Saved</button>
+          {["overview", "projects", "stars", "saved"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => handleTabClick(tab)}
+              className={activeTab === tab ? "active-tab" : ""}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
 
         <div className="profile-container">
@@ -247,11 +363,80 @@ const Profile = () => {
             )}
 
             <div className="info">
-              <p>
-                👥 {profileData.followers?.length || 0} followers ·{" "}
+            <p>
+              👥{" "}
+              <span
+                onClick={() => openUserListModal("followers")}
+                style={{ cursor: "pointer", fontWeight: "bold" }}
+              >
+                {profileData.followers?.length || 0} followers
+              </span>{" "}
+              ·{" "}
+              <span
+                onClick={() => openUserListModal("following")}
+                style={{ cursor: "pointer", fontWeight: "bold" }}
+              >
                 {profileData.following?.length || 0} following
-              </p>
+              </span>
+            </p>
 
+            <Modal
+              isOpen={showUserListModal}
+              onRequestClose={() => setShowUserListModal(false)}
+              className="userlist-modal"
+              overlayClassName="modal-backdrop"
+            >
+              <h3 style={{ textAlign: "center", marginBottom: "10px" }}>
+                {listType === "followers" ? "Followers" : "Following"}
+              </h3>
+              <div className="userlist-scroll">
+                {userList.length === 0 ? (
+                  <p style={{ textAlign: "center" }}>No users found.</p>
+                ) : (
+                  userList.map((u) => {
+                    const isCurrentUser = currentUser?.id === u._id;
+                    const isFollowingUser = profileData.following?.some(
+                      (f) => f._id === u._id
+                    );
+                    return (
+                      <div className="userlist-item" key={u._id}>
+                        <img src={u.avatar || profileImage} alt="avatar" />
+                        <span>{u.name}</span>
+                        {!isCurrentUser && isMyProfile && (
+                          <button
+                            onClick={async () => {
+                              try {
+                                const endpoint = isFollowingUser ? "unfollow" : "follow";
+                                await API.post(`/users/${u._id}/${endpoint}`);
+
+                                // Optional: update the local state after follow/unfollow
+                                if (endpoint === "unfollow") {
+                                  setProfileData((prev) => ({
+                                    ...prev,
+                                    following: prev.following.filter((f) => f._id !== u._id),
+                                  }));
+                                } else {
+                                  setProfileData((prev) => ({
+                                    ...prev,
+                                    following: [...prev.following, { _id: u._id }],
+                                  }));
+                                }
+
+                                fetchProfile(); 
+                              } catch (err) {
+                                console.error(err);
+                              }
+                            }}
+                          >
+                            {isFollowingUser ? "Unfollow" : "Follow"}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </Modal>
               <p>
                 🏢{" "}
                 {isEditing ? (
@@ -304,28 +489,120 @@ const Profile = () => {
           </div>
 
           <div className="profile-right">
-            <div className="projects-header">
-              <h3>Pinned</h3>
-              {isMyProfile && (
-                <button className="upload-project-btn" onClick={() => setShowUploadModal(true)}>
-                  + Upload Project
-                </button>
-              )}
-            </div>
-            <div className="projects-grid">
-            {userProjects
-              .filter((p) => isMyProfile || p.visibility === "public")
-              .map((proj) => (
-                <div key={proj._id} className="project-card">
-                  <h4>
-                    📄 <span className="project-name">{proj.title}</span>{" "}
-                    <span className="tag">{proj.visibility}</span>
-                  </h4>
-                  <p>{proj.description}</p>
-                  <a href={proj.fileUrl} download className="download-link">Download</a>
+            {activeTab === "overview" && (
+              <>
+                <div className="projects-header">
+                  <h3>Pinned</h3>
                 </div>
-              ))}
-            </div>
+                <div className="projects-grid">
+                  {userProjects
+                    .filter((p) => p.isPinned)
+                    .map((proj) => (
+                      <div key={proj._id} className="project-card">
+                        <h4>
+                          📌 <span className="project-name">{proj.title}</span>{" "}
+                          <span className="tag">{proj.visibility}</span>
+                        </h4>
+                        <p>{proj.description}</p>
+                        <a href={proj.fileUrl} download className="download-link">Download</a>
+                      </div>
+                    ))}
+                </div>
+              </>
+            )}
+
+            {activeTab === "projects" && (
+              <>
+                <div className="projects-header">
+                  <h3>All Projects</h3>
+                  {isMyProfile && (
+                    <button className="upload-project-btn" onClick={() => setShowUploadModal(true)}>
+                      + Upload Project
+                    </button>
+                  )}
+                </div>
+                <div className="projects-grid">
+                  {userProjects.map((proj) => (
+                    <div key={proj._id} className="project-card">
+                      <h4>
+                        📄 <span className="project-name">{proj.title}</span>{" "}
+                        <span className="tag">{proj.visibility}</span>
+                      </h4>
+                      <p>{proj.description}</p>
+                      <a href={proj.fileUrl} download className="download-link">Download</a>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "4px", marginTop: isMyProfile ? "-100px" : "0px",}}>
+
+                        {/* Show Edit / Delete / Pin only if it is your profile */}
+                        <button
+                          className="project-action-btn"
+                          onClick={() => toggleStarProject(proj._id)}
+                          title={starredProjects.some(p => p._id === proj._id) ? "Unstar Project" : "Star Project"}
+                        >
+                          {starredProjects.some(p => p._id === proj._id) ? "🌟" : "⭐"}
+                        </button>
+                        {isMyProfile && (
+                          <>
+                            <button className="project-action-btn" onClick={() => handleEditProject(proj)} title="Edit">✏️</button>
+                            <button className="project-action-btn" onClick={() => handleDeleteProject(proj._id)} title="Delete">🗑️</button>
+                            <button className="project-action-btn" onClick={() => togglePinProject(proj._id)} title={proj.isPinned ? "Unpin" : "Pin"}>
+                              {proj.isPinned ? "📌" : "📍"}
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {activeTab === "stars" && (
+              <>
+                <div className="projects-header">
+                  <h3>Starred Projects</h3>
+                </div>
+                <div className="projects-grid">
+                  {starredProjects.length === 0 ? (
+                    <p>You have no starred projects yet.</p>
+                  ) : (
+                    starredProjects.map((proj) => (
+                      <div key={proj._id} className="project-card">
+                        <h4>
+                        🌟 <span className="project-name">{proj.title}</span>{" "}
+                          <span className="tag">{proj.visibility}</span>
+                        </h4>
+                        <p>{proj.description}</p>
+                        <a href={proj.fileUrl} download className="download-link">Download</a>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+
+            {activeTab === "saved" && (
+              <>
+                <div className="projects-header">
+                  <h3>Saved Posts</h3>
+                </div>
+                <div className="projects-grid">
+                  {savedPosts.length === 0 ? (
+                    <p>You have no saved posts.</p>
+                  ) : (
+                    savedPosts.map((post) => (
+                      <div key={post._id} className="project-card">
+                        <h4>
+                          💾 <span className="project-name">{post.title}</span>
+                        </h4>
+                        <p>{post.content}</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </>
+            )}
+            
+            
           </div>
         </div>
       </div>
@@ -370,6 +647,35 @@ const Profile = () => {
         <div className="modal-actions">
           <button onClick={uploadProject}>Upload</button>
           <button onClick={() => setShowUploadModal(false)}>Cancel</button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={showEditModal}
+        onRequestClose={() => setShowEditModal(false)}
+        className="modal-box"
+        overlayClassName="modal-backdrop"
+      >
+        <h2>Edit Project</h2>
+        <input
+          name="title"
+          value={editingProject?.title || ""}
+          onChange={(e) => setEditingProject({ ...editingProject, title: e.target.value })}
+          className={editErrors.title ? "error-input" : ""}
+        />
+        {editErrors.title && <p className="error">{editErrors.title}</p>}
+
+        <textarea
+          name="description"
+          value={editingProject?.description || ""}
+          onChange={(e) => setEditingProject({ ...editingProject, description: e.target.value })}
+          className={editErrors.description ? "error-input" : ""}
+        />
+        {editErrors.description && <p className="error">{editErrors.description}</p>}
+
+        <div className="modal-actions">
+          <button onClick={saveEditedProject}>Save</button>
+          <button onClick={() => setShowEditModal(false)}>Cancel</button>
         </div>
       </Modal>
     </>
