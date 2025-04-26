@@ -86,15 +86,13 @@ const Community = () => {
   useEffect(() => {
     loadCommunity();
     loadNews();
-  }, [search]);
-
-  useEffect(() => {
     const fetchSaved = async () => {
       const res = await API.get("/users/profile");
       setSavedPosts(res.data.user.savedPosts || []);
     };
     fetchSaved();
-  }, []);
+  }, [search]);
+
   
 
   const handleCreatePost = async () => {
@@ -147,14 +145,17 @@ const Community = () => {
 
   const handleSavePost = async (postId) => {
     try {
-      const res = await API.post(`/community/${postId}/save`);
-      setSavedPosts(prev =>
-        prev.includes(postId) ? prev.filter(id => id !== postId) : [...prev, postId]
-      );
+      await API.post(`/community/${postId}/save`);
+      const res = await API.get("/users/profile");
+      setSavedPosts(res.data.user.savedPosts || []);
+  
+      // Reload the posts to re-render saved icon correctly
+      await loadCommunity();
     } catch (err) {
       console.error("Failed to toggle save", err);
     }
   };
+  
 
   const handleAddComment = async (postId) => {
     const content = commentText[postId]?.trim();
@@ -279,21 +280,23 @@ const Community = () => {
                     <p className="repo-desc">{post.content}</p>
                     <div className="repo-footer">
                     <span style={{ cursor: "pointer" }} onClick={() => toggleComments(post.id)}>
-                      💬 {comments[post.id]?.length || 0} Comments
-                    </span>                      
-                      <div className="post-controls">
-                        <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
-                        <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
-                      {user?.id === post.userId?._id && (
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleSavePost(post.id)}
-                          title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
-                        >
-                          {savedPosts.includes(post.id) ? "💾" : "📥"}
-                        </button>
-                      )}
-                      </div>
+                      💬 {post.commentsCount} Comments
+                    </span>                        
+                    <div className="post-controls">
+                      {user?.id === post.userId?._id ? (
+                        <>
+                          <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
+                          <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
+                        </>
+                      ) : null}
+                      <button
+                        className="icon-btn"
+                        onClick={() => handleSavePost(post.id)}
+                        title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
+                      >
+                        {savedPosts.includes(post.id) ? "💾" : "📥"}
+                      </button>
+                    </div>
                     </div>
                   </>
                 )}
