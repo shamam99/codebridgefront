@@ -1,13 +1,16 @@
-// 📁 src/pages/Login.jsx
 import React, { useState } from "react";
 import "../styles/auth.css";
 import loginGirl from "../assets/loginGirl.png";
 import { loginUser } from "../services/authService";
+import { useNavigate } from "react-router-dom";
+
 
 const Login = ({ onSwitchToRegister }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,21 +36,24 @@ const Login = ({ onSwitchToRegister }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-
     try {
       const data = await loginUser(formData);
       if (rememberMe) {
         localStorage.setItem("token", data.token);
-        sessionStorage.removeItem("token"); 
+        sessionStorage.removeItem("token");
       } else {
         sessionStorage.setItem("token", data.token);
-        localStorage.removeItem("token"); 
+        localStorage.removeItem("token");
       }      
-      window.location.reload();
+      navigate("/profile"); // Redirect after successful login
     } catch (err) {
       alert(err.response?.data?.error || "Login failed.");
     }
   };
+  
+
+
+
 
   return (
     <div className="auth-container">

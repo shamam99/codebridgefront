@@ -7,10 +7,12 @@ import { useParams } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Modal from "react-modal";
 import { deleteAvatar } from "../services/userService";
+import { getStoredToken } from "../services/authService";
 
 const Profile = () => {
   const { id } = useParams();
-  const token = localStorage.getItem("token");
+  const token = getStoredToken();
+
   const currentUser = token ? jwtDecode(token) : null;
 
   const [isEditing, setIsEditing] = useState(false);
@@ -178,9 +180,6 @@ const Profile = () => {
       console.error("Failed to star/unstar project", err);
     }
   };
-
-  
-
   const fetchProfile = async () => {
     try {
       const url = id ? `/users/${id}` : `/users/profile`;

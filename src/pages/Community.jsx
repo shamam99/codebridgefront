@@ -87,9 +87,21 @@ const Community = () => {
     loadCommunity();
     loadNews();
     const fetchSaved = async () => {
-      const res = await API.get("/users/profile");
-      setSavedPosts(res.data.user.savedPosts || []);
+      try {
+        const res = await API.get("/users/profile");
+    
+        if (res.data && res.data.user && Array.isArray(res.data.user.savedPosts)) {
+          setSavedPosts(res.data.user.savedPosts);
+        } else {
+          setSavedPosts([]);
+        }
+      } catch (error) {
+        console.error("Failed to load saved posts", error);
+        setSavedPosts([]);
+      }
     };
+
+
     fetchSaved();
   }, [search]);
 
@@ -279,24 +291,24 @@ const Community = () => {
                   <>
                     <p className="repo-desc">{post.content}</p>
                     <div className="repo-footer">
-                    <span style={{ cursor: "pointer" }} onClick={() => toggleComments(post.id)}>
-                      💬 {post.commentsCount} Comments
-                    </span>                        
-                    <div className="post-controls">
-                      {user?.id === post.userId?._id ? (
-                        <>
-                          <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
-                          <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
-                        </>
-                      ) : null}
-                      <button
-                        className="icon-btn"
-                        onClick={() => handleSavePost(post.id)}
-                        title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
-                      >
-                        {savedPosts.includes(post.id) ? "💾" : "📥"}
-                      </button>
-                    </div>
+                      <span style={{ cursor: "pointer" }} onClick={() => toggleComments(post.id)}>
+                        💬 {post.commentsCount !== undefined ? post.commentsCount : 0} Comments
+                      </span>                        
+                      <div className="post-controls">
+                        {user?.id === post.userId?._id && (
+                          <>
+                            <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
+                            <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
+                          </>
+                        )}
+                        <button
+                          className="icon-btn"
+                          onClick={() => handleSavePost(post.id)}
+                          title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
+                        >
+                          {savedPosts.includes(post.id) ? "💾" : "📥"}
+                        </button>
+                      </div>
                     </div>
                   </>
                 )}
