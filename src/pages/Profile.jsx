@@ -115,8 +115,12 @@ const Profile = () => {
   };
   
   useEffect(() => {
-    fetchSavedPosts();
-  }, []);
+    if (isMyProfile) {
+      fetchSavedPosts();
+    } else {
+      setSavedPosts([]); // Clear savedPosts for other users
+    }
+  }, [isMyProfile]);
 
   const saveEditedProject = async () => {
     const errors = {
@@ -222,8 +226,11 @@ const Profile = () => {
         "socialLinks",
         JSON.stringify([{ platform: "personal", url: profileData.socialLinks?.[0]?.url || "" }])
       );
+      if (profileData.email) formData.append("email", profileData.email);
+      if (profileData.password) formData.append("password", profileData.password);
+  
       if (selectedImage) formData.append("avatar", selectedImage);
-
+  
       const res = await API.put("/users/profile", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -233,6 +240,7 @@ const Profile = () => {
       console.error("Failed to update profile", error);
     }
   };
+  
 
   useEffect(() => {
     fetchProfile();
@@ -482,6 +490,26 @@ const Profile = () => {
                 ) : (
                   profileData.socialLinks?.[0]?.url
                 )}
+                {isEditing && (
+                  <>
+                    <h4>Email</h4>
+                    <input
+                      type="email"
+                      name="email"
+                      value={profileData.email || ""}
+                      onChange={handleInputChange}
+                      placeholder="Email"
+                    />
+                    <h4>Password</h4>
+                    <input
+                      type="password"
+                      name="password"
+                      value={profileData.password || ""}
+                      onChange={handleInputChange}
+                      placeholder="New Password (optional)"
+                    />
+                  </>
+                )}
               </p>
             </div>
 
@@ -585,22 +613,23 @@ const Profile = () => {
                   <h3>Saved Posts</h3>
                 </div>
                 <div className="projects-grid">
-                  {savedPosts.length === 0 ? (
-                    <p>You have no saved posts.</p>
+                  {isMyProfile ? (
+                    savedPosts.length === 0 ? (
+                      <p>You have no saved posts.</p>
+                    ) : (
+                      savedPosts.map((post) => (
+                        <div key={post.id} className="project-card">
+                          <h4>💾 <span className="project-name">{post.title}</span></h4>
+                          <p>{post.content}</p>
+                        </div>
+                      ))
+                    )
                   ) : (
-                    savedPosts.map((post) => (
-                      <div key={post._id} className="project-card">
-                        <h4>
-                          💾 <span className="project-name">{post.title}</span>
-                        </h4>
-                        <p>{post.content}</p>
-                      </div>
-                    ))
+                    <p>Saved posts are private and only visible to the profile owner.</p>
                   )}
                 </div>
               </>
             )}
-            
             
           </div>
         </div>

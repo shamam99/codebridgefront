@@ -12,26 +12,68 @@ const Login = ({ onSwitchToRegister }) => {
   const navigate = useNavigate();
 
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+const handleChange = (e) => {
+  const { name, value } = e.target;
+  setFormData({ ...formData, [name]: value });
 
-  const validate = () => {
-    const newErrors = {};
+  // Live validate
+  let fieldError = {};
 
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!/.+@.+\..+/.test(formData.email)) {
-      newErrors.email = "Invalid email format.";
+  if (name === "name") {
+    if (!value.trim()) {
+      fieldError.name = "Name is required.";
+    } else if (!/^[\p{L}\s'-]+$/u.test(value)) {
+      fieldError.name = "Name must contain only letters.";
+    } else {
+      fieldError.name = "";
     }
+  }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required.";
+  if (name === "email") {
+    if (!value.trim()) {
+      fieldError.email = "Email is required.";
+    } else if (!/.+@.+\..+/.test(value)) {
+      fieldError.email = "Invalid email format.";
+    } else {
+      fieldError.email = "";
     }
+  }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+  if (name === "password") {
+    if (!value.trim()) {
+      fieldError.password = "Password is required.";
+    } else if (value.length < 6 || value.length > 10) {
+      fieldError.password = "Password must be 6–10 characters.";
+    } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(value)) {
+      fieldError.password = "Password must contain letters and numbers.";
+    } else {
+      fieldError.password = "";
+    }
+  }
+
+  setErrors(prevErrors => ({ ...prevErrors, ...fieldError }));
+};
+
+  
+
+
+const validate = () => {
+  const newErrors = {};
+
+  if (!formData.email.trim()) {
+    newErrors.email = "Email is required.";
+  } else if (!/.+@.+\..+/.test(formData.email)) {
+    newErrors.email = "Invalid email format.";
+  }
+
+  if (!formData.password) {
+    newErrors.password = "Password is required.";
+  }
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();

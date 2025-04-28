@@ -39,23 +39,60 @@ const Community = () => {
   const navigate = useNavigate();
   const [savedPosts, setSavedPosts] = useState([]);
   const [visibleComments, setVisibleComments] = useState({});
+  const [deleteModal, setDeleteModal] = useState({ show: false, postId: null });
+
 
 
   const loadCommunity = async () => {
     try {
-      if (search.trim()) {
-        const { users, posts } = await searchCommunity(search);
-        setUsers(users);
-        setPosts(posts);
-      } else {
-        const { posts } = await searchCommunity("");
-        setUsers([]);
-        setPosts(posts);
+      let saved = [];
+  
+      if (token) {
+        const profileRes = await API.get("/users/profile");
+        saved = profileRes.data.savedPosts || [];
+        setSavedPosts(saved);
       }
+  
+      // Now fetch posts
+      const searchResult = search.trim()
+        ? await searchCommunity(search)
+        : await searchCommunity("");
+  
+      setUsers(searchResult.users || []);
+      const fetchedPosts = searchResult.posts || [];
+  
+      const updatedPosts = fetchedPosts
+        .filter(post => post.userId)
+        .map(post => ({
+          ...post,
+          isSaved: saved.includes(post.id),
+        }));
+  
+      setPosts(updatedPosts);
+  
+      // Preload comments count
+      updatedPosts.forEach(post => preloadCommentCount(post.id));
+  
     } catch (error) {
       console.error("Failed to load community data", error);
     }
   };
+  
+
+
+  const preloadCommentCount = async (postId) => {
+    try {
+      const data = await fetchComments(postId);
+      setPosts(prev =>
+        prev.map(post =>
+          post.id === postId ? { ...post, commentsCount: data.length } : post
+        )
+      );
+    } catch (err) {
+      console.error("Failed to preload comment count", err);
+    }
+  };
+  
 
   const loadNews = async () => {
     try {
@@ -78,6 +115,13 @@ const Community = () => {
     try {
       const data = await fetchComments(postId);
       setComments((prev) => ({ ...prev, [postId]: data }));
+
+      // Update the post's comment count
+      setPosts((prev) =>
+        prev.map((post) =>
+          post.id === postId ? { ...post, commentsCount: data.length } : post
+        )
+      );
     } catch (err) {
       console.error("Failed to load comments", err);
     }
@@ -86,24 +130,12 @@ const Community = () => {
   useEffect(() => {
     loadCommunity();
     loadNews();
-    const fetchSaved = async () => {
-      try {
-        const res = await API.get("/users/profile");
     
-        if (res.data && res.data.user && Array.isArray(res.data.user.savedPosts)) {
-          setSavedPosts(res.data.user.savedPosts);
-        } else {
-          setSavedPosts([]);
-        }
-      } catch (error) {
-        console.error("Failed to load saved posts", error);
-        setSavedPosts([]);
-      }
-    };
-
-
-    fetchSaved();
+    if (token) {
+      fetchSavedPosts();
+    }
   }, [search]);
+    
 
   
 
@@ -136,17 +168,28 @@ const Community = () => {
         loadCommunity();
       }, 300);
     } catch {
-      alert("Failed to create post");
+      alert("Failed to create post, you must log in first");
     }
   };
   
   
 
-  const handleDeletePost = async (id) => {
-    if (confirm("Delete this post?")) {
-      await deletePost(id);
+  const openDeleteModal = (id) => {
+    setDeleteModal({ show: true, postId: id });
+  };
+  
+  const handleConfirmDelete = async () => {
+    try {
+      await deletePost(deleteModal.postId);
+      setDeleteModal({ show: false, postId: null });
       loadCommunity();
+    } catch (error) {
+      console.error("Failed to delete post", error);
     }
+  };
+  
+  const handleCancelDelete = () => {
+    setDeleteModal({ show: false, postId: null });
   };
 
   const handleUpdatePost = async (id, content) => {
@@ -158,16 +201,35 @@ const Community = () => {
   const handleSavePost = async (postId) => {
     try {
       await API.post(`/community/${postId}/save`);
-      const res = await API.get("/users/profile");
-      setSavedPosts(res.data.user.savedPosts || []);
+      
+      setPosts(prevPosts =>
+        prevPosts.map(post =>
+          post.id === postId
+            ? { ...post, isSaved: !post.isSaved }
+            : post
+        )
+      );
   
-      // Reload the posts to re-render saved icon correctly
-      await loadCommunity();
     } catch (err) {
       console.error("Failed to toggle save", err);
     }
   };
+
+  const fetchSavedPosts = async () => {
+    try {
+      const res = await API.get("/users/profile");
+      if (res.data && Array.isArray(res.data.savedPosts)) {
+        setSavedPosts(res.data.savedPosts);
+      } else {
+        setSavedPosts([]);
+      }
+    } catch (error) {
+      console.error("Failed to load saved posts", error);
+      setSavedPosts([]);
+    }
+  };
   
+
 
   const handleAddComment = async (postId) => {
     const content = commentText[postId]?.trim();
@@ -183,8 +245,8 @@ const Community = () => {
       setCommentErrors((prev) => ({ ...prev, [postId]: "" }));
       loadComments(postId);
     } catch (err) {
-      console.error("Failed to create comment", err);
-      setCommentErrors((prev) => ({ ...prev, [postId]: "Failed to create comment." }));
+      console.error("Failed to create comment,  you must log in first", err);
+      setCommentErrors((prev) => ({ ...prev, [postId]: "Failed to create comment,  you must log in first" }));
     }
   };
   
@@ -265,8 +327,13 @@ const Community = () => {
                     className="avatar"
                   />
                   <div>
-                    <strong>{post.userId?.name}</strong>
-                    <p className="time">{new Date(post.timestamp).toLocaleString()}</p>
+                  <strong
+                    className="clickable-username"
+                    onClick={() => navigate(`/profile/${post.userId?._id}`)}
+                  >
+                    {post.userId?.name}
+                  </strong>                    
+                  <p className="time">{new Date(post.timestamp).toLocaleString()}</p>
                   </div>
                 </div>
 
@@ -298,16 +365,15 @@ const Community = () => {
                         {user?.id === post.userId?._id && (
                           <>
                             <button className="icon-btn" title="Edit" onClick={() => setEditingPostId(post.id)}>✏️</button>
-                            <button className="icon-btn delete" title="Delete" onClick={() => handleDeletePost(post.id)}>🗑️</button>
-                          </>
+                            <button className="icon-btn delete" title="Delete" onClick={() => openDeleteModal(post.id)}>🗑️</button>                            </>
                         )}
-                        <button
-                          className="icon-btn"
-                          onClick={() => handleSavePost(post.id)}
-                          title={savedPosts.includes(post.id) ? "Unsave Post" : "Save Post"}
-                        >
-                          {savedPosts.includes(post.id) ? "💾" : "📥"}
-                        </button>
+                          <button
+                            className="icon-btn"
+                            onClick={() => handleSavePost(post.id)}
+                            title={post.isSaved ? "Unsave Post" : "Save Post"}
+                          >
+                            {post.isSaved ? "💾" : "📥"}
+                          </button>
                       </div>
                     </div>
                   </>
@@ -341,8 +407,13 @@ const Community = () => {
                         />
                         <div>
                           <div>
-                            <span className="comment-user">{c.userId?.name}</span>
-                            <span className="comment-time"> – {new Date(c.timestamp).toLocaleString()}</span>
+                          <span
+                            className="comment-user clickable-username"
+                            onClick={() => navigate(`/profile/${c.userId?._id}`)}
+                          >
+                            {c.userId?.name}
+                          </span>                            
+                          <span className="comment-time"> – {new Date(c.timestamp).toLocaleString()}</span>
                           </div>
                           <div>{c.content}</div>
                         </div>
@@ -408,6 +479,18 @@ const Community = () => {
           </div>
         </div>
       )}
+      {deleteModal.show && (
+        <div className="modal-backdrop">
+          <div className="modal-box">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this post?</p>
+            <div className="modal-actions">
+              <button onClick={handleCancelDelete}>Cancel</button>
+              <button onClick={handleConfirmDelete} style={{ backgroundColor: "#ff4d4f" }}>Delete</button>
+            </div>
+          </div>
+        </div>
+      )}  
     </>
   );
 };

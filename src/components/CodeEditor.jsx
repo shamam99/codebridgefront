@@ -10,7 +10,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import { javascript } from "@codemirror/lang-javascript";
 import { python } from "@codemirror/lang-python";
 import { EditorView, Decoration, ViewPlugin } from "@codemirror/view";
-
+import { getStoredToken } from "../services/authService";
 const CodeEditor = () => {
   const [tabs, setTabs] = useState([]);
   const [activeTab, setActiveTab] = useState(null);
@@ -284,7 +284,13 @@ const CodeEditor = () => {
         <button className="new-tab-btn" onClick={addNewTab}>
           + New Tab
         </button>
-        <button className="save-tab-btn" onClick={saveTab}>
+        <button
+          className="save-tab-btn"
+          onClick={() => {
+            if (isVisitor) return openVisitorModal();
+            saveTab();
+          }}
+        >
           💾 Save
         </button>
       </div>
@@ -292,24 +298,27 @@ const CodeEditor = () => {
       <div className="editor-wrapper">
         {/* Left Side: Main Editor */}
         <div className="left-editor-panel">
-          <div className="left-editor-header">
-            <select
-              value={active?.language}
-              onChange={(e) => updateLanguage(active.id, e.target.value)}
-            >
-              <option value="python">Python</option>
-              <option value="javascript">JavaScript</option>
-            </select>
-  
-            <div className="left-editor-buttons">
-              <button className="run-btn" onClick={runCodeHandler}>
-                ▶️ Run
-              </button>
-              <button className="translate-btn" onClick={translateCodeHandler}>
-                🔄 Translate
-              </button>
-            </div>
+        <div className="left-editor-header">
+          <select
+            value={active?.language}
+            onChange={(e) => updateLanguage(active.id, e.target.value)}
+            className="small-dropdown"
+          >
+            <option value="python">Python</option>
+            <option value="javascript">JavaScript</option>
+          </select>
+
+          {/* 🟰 Group the buttons inside a new container */}
+          <div className="left-editor-buttons">
+            <button className="run-btn" onClick={runCodeHandler}>
+              ▶️ Run
+            </button>
+            <button className="translate-btn" onClick={translateCodeHandler}>
+              🔄 Translate
+            </button>
           </div>
+        </div>
+
   
           <CodeMirror
             value={active?.content || ""}
@@ -342,18 +351,20 @@ const CodeEditor = () => {
   
         {/* Right Side: Output & Debug */}
         <div className="right-output-panel">
-          <div className="right-editor-header">
-            <select
-              value={toLanguage}
-              onChange={(e) => setToLanguage(e.target.value)}
-            >
-              <option value="javascript">JavaScript</option>
-              <option value="python">Python</option>
-            </select>
-            <button className="debug-btn" onClick={debugCodeHandler}>
-              🔍 Debug
-            </button>
-          </div>
+        <div className="right-editor-header">
+          <select
+            value={toLanguage}
+            onChange={(e) => setToLanguage(e.target.value)}
+            className="small-dropdown"
+          >
+            <option value="javascript">JavaScript</option>
+            <option value="python">Python</option>
+          </select>
+
+          <button className="debug-btn" onClick={debugCodeHandler}>
+            🔍 Debug
+          </button>
+        </div>
             <textarea
               className="translated-code-area"
               value={translatedCode}

@@ -37,7 +37,9 @@ const fetchUsers = async () => {
 const deleteUser = async (id) => {
   await axios.delete(`/admin/dashboard/users/${id}`, getAdminHeaders());
 };
-
+const toggleUserStatus = async (id) => {
+  await axios.patch(`/admin/dashboard/users/${id}/toggle`, {}, getAdminHeaders());
+};
 // Post Management
 const fetchPosts = async () => {
   const res = await axios.get("/admin/dashboard/posts", getAdminHeaders());
@@ -82,6 +84,7 @@ const adminService = {
   fetchNews,
   createNews,
   deleteNews,
+  toggleUserStatus,
 };
 
 export default adminService;

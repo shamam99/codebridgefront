@@ -382,3 +382,13 @@
 .error-input {
   border: 1px solid red !important;
 }
+
+.clickable-username {
+  cursor: pointer;
+  color: #6C51B3;
+  font-weight: bold;
+}
+
+.clickable-username:hover {
+  text-decoration: underline;
+}

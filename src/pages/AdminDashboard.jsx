@@ -32,6 +32,13 @@ const AdminDashboard = () => {
     });
   };
 
+  const handleToggleUserStatus = async (id) => {
+    confirmDelete(async () => {
+      await adminService.toggleUserStatus(id);
+      loadUsers();
+    });
+  };
+
   // POSTS
   const loadPosts = async () => {
     const data = await adminService.fetchPosts();
@@ -136,7 +143,17 @@ const AdminDashboard = () => {
                     <td>{u.name}</td>
                     <td>{u.username}</td>
                     <td>{u.email}</td>
-                    <td><button className="delete-btn" onClick={() => handleDeleteUser(u._id)}>Delete</button></td>
+                    <td>
+                      {u.isActive ? (
+                        <button className="deactivate-btn" onClick={() => handleToggleUserStatus(u._id)}>
+                          Deactivate
+                        </button>
+                      ) : (
+                        <button className="activate-btn" onClick={() => handleToggleUserStatus(u._id)}>
+                          Activate
+                        </button>
+                      )}
+                    </td>                  
                   </tr>
                 ))}
               </tbody>

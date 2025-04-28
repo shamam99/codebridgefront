@@ -12,10 +12,10 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/coding" element={<PrivateRoute><Coding /></PrivateRoute>} />
+      <Route path="/coding" element={<Coding/>} />
       <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
       <Route path="/profile/:id" element={<Profile />} />
-      <Route path="/community" element={<PrivateRoute><Community /></PrivateRoute>} />
+      <Route path="/community" element={<Community />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
     </Routes>

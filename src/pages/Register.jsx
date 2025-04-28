@@ -13,27 +13,63 @@ const Register = ({ onSwitchToLogin }) => {
   const [agreeTerms, setAgreeTerms] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  
+    // Live validate
+    let fieldError = {};
+  
+    if (name === "name") {
+      if (!value.trim()) {
+        fieldError.name = "Name is required.";
+      } else if (!/^[\p{L}\s'-]+$/u.test(value)) {
+        fieldError.name = "Name must contain only letters.";
+      } else {
+        fieldError.name = "";
+      }
+    }
+  
+    if (name === "email") {
+      if (!value.trim()) {
+        fieldError.email = "Email is required.";
+      } else if (!/.+@.+\..+/.test(value)) {
+        fieldError.email = "Invalid email format.";
+      } else {
+        fieldError.email = "";
+      }
+    }
+  
+    if (name === "password") {
+      if (!value.trim()) {
+        fieldError.password = "Password is required.";
+      } else if (value.length < 6 || value.length > 10) {
+        fieldError.password = "Password must be 6–10 characters.";
+      } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(value)) {
+        fieldError.password = "Password must contain letters and numbers.";
+      } else {
+        fieldError.password = "";
+      }
+    }
+  
+    setErrors(prevErrors => ({ ...prevErrors, ...fieldError }));
   };
+  
 
   const validate = () => {
     const newErrors = {};
-    let firstInvalidField = null;
-
+  
     if (!formData.name.trim()) {
       newErrors.name = "Name is required.";
-      firstInvalidField = "name";
     } else if (!/^[\p{L}\s'-]+$/u.test(formData.name)) {
       newErrors.name = "Name must contain only letters.";
-      firstInvalidField = "name";
     }
-
+  
     if (!formData.email.trim()) {
       newErrors.email = "Email is required.";
     } else if (!/.+@.+\..+/.test(formData.email)) {
-      newErrors.email = "Email format is invalid.";
+      newErrors.email = "Invalid email format.";
     }
-
+  
     if (!formData.password) {
       newErrors.password = "Password is required.";
     } else if (formData.password.length < 6 || formData.password.length > 10) {
@@ -41,17 +77,15 @@ const Register = ({ onSwitchToLogin }) => {
     } else if (!/(?=.*[a-zA-Z])(?=.*\d)/.test(formData.password)) {
       newErrors.password = "Password must contain letters and numbers.";
     }
-
+  
     if (!agreeTerms) {
       newErrors.terms = "You must agree to the Terms & Conditions.";
     }
-
+  
     setErrors(newErrors);
-    if (firstInvalidField) {
-      document.querySelector(`[name="${firstInvalidField}"]`)?.focus();
-    }
     return Object.keys(newErrors).length === 0;
   };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
