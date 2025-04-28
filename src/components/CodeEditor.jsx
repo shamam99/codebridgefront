@@ -286,9 +286,7 @@ const CodeEditor = () => {
         </button>
         <button
           className="save-tab-btn"
-          onClick={() => {
-            if (isVisitor) return openVisitorModal();
-            saveTab();
+          onClick={() => {saveTab();
           }}
         >
           💾 Save

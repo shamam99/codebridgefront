@@ -1,23 +1,20 @@
 import API from "./axiosInstance";
-import { getStoredToken } from "./authService";  
 
 // TRANSLATE CODE
 export const translateCode = async ({ code, fromLang, toLang }) => {
-  const token = getStoredToken();
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
   const response = await API.post("/translate", {
     code,
     fromLang,
     toLang,
-  }, { headers });
+  });
   
   return response.data;
 };
 
 // RUN CODE
 export const runCode = async ({ code, language }) => {
-  const response = await API.post("/code/run", {
+  const response = await API.post("/translate/run", {
     code,
     language,
   });
@@ -26,7 +23,7 @@ export const runCode = async ({ code, language }) => {
 
 // DEBUG CODE
 export const debugCode = async ({ code, language }) => {
-  const response = await API.post("/code/debug", {
+  const response = await API.post("/translate/debug", {
     code,
     language,
   });
