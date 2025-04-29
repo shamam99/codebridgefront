@@ -53,7 +53,7 @@ const Community = () => {
         setSavedPosts(saved);
       }
   
-      // Now fetch posts
+      // Now fetch posts here 
       const searchResult = search.trim()
         ? await searchCommunity(search)
         : await searchCommunity("");
